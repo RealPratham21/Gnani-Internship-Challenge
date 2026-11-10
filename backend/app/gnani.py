@@ -72,8 +72,10 @@ class GnaniSettings:
             timbre_language=os.getenv("GNANI_TIMBRE_LANGUAGE", "auto").strip(),
             timbre_voice=os.getenv("GNANI_TIMBRE_VOICE", "Avinash").strip(),
             timeout_seconds=float(os.getenv("GNANI_TIMEOUT_SECONDS", "30")),
-            debug_provider_logs=os.getenv(
-                "SHABDVERSE_DEBUG_PROVIDER_LOGS", "false"
+            debug_provider_logs=(
+                os.getenv("WUNDRO_DEBUG_PROVIDER_LOGS")
+                or os.getenv("SHABDVERSE_DEBUG_PROVIDER_LOGS")
+                or "false"
             ).lower() == "true",
         )
 

@@ -30,15 +30,33 @@ scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 2.35));
 
 const appRoot = document.querySelector('#app');
 appRoot.innerHTML = `
-  <div class="brand" aria-hidden="true"><strong>ShabdVerse</strong><span>v0.7</span></div>
+  <section class="landing" aria-label="Wundro home">
+    <div class="landing-brand">
+      <img class="landing-logo" src="/wundro-logo.png" alt="" width="148" height="148" decoding="async" />
+      <img class="landing-wordmark" src="/wundro-name.png" alt="Wundro" width="320" height="120" decoding="async" />
+      <p class="landing-tag">Speak the world into place</p>
+    </div>
+  </section>
+  <div class="brand-chip" aria-hidden="true">
+    <img src="/wundro-name.png" alt="" decoding="async" />
+  </div>
+  <button id="exit-ar" type="button" aria-label="Close AR">
+    <span class="exit-icon" aria-hidden="true"></span>
+  </button>
   <div class="aim-crosshair" data-mode="inactive" aria-hidden="true"></div>
   <div id="placement-status" class="placement-chip" data-mode="inactive"></div>
   <div id="status-pill" class="status-pill" data-visible="false" role="status" aria-live="polite">
     <span class="pulse" aria-hidden="true"></span>
     <span id="voice-status" class="copy">Checking…</span>
   </div>
-  <div class="voice-dock">
-    <button id="push-to-talk" type="button" aria-label="Hold to talk">
+  <div class="action-dock start-dock">
+    <span class="start-label">Start AR</span>
+    <button id="start-ar" class="circle-btn" type="button" aria-label="Start AR">
+      <span class="ar-icon" aria-hidden="true"><span></span></span>
+    </button>
+  </div>
+  <div class="action-dock voice-dock">
+    <button id="push-to-talk" class="circle-btn" type="button" aria-label="Hold to talk">
       <span class="mic-icon" aria-hidden="true"></span>
     </button>
   </div>
@@ -48,6 +66,8 @@ const arButton = ARButton.createButton(renderer, {
   optionalFeatures: ['hit-test', 'dom-overlay', 'local-floor'],
   domOverlay: { root: appRoot },
 });
+arButton.setAttribute('aria-hidden', 'true');
+arButton.tabIndex = -1;
 document.body.appendChild(arButton);
 
 const aimPlacement = new AimPlacementController({ scene, distance: 2 });
@@ -59,10 +79,30 @@ const sceneManager = new SceneManager({
 const statusPill = document.querySelector('#status-pill');
 const voiceStatus = document.querySelector('#voice-status');
 const pushToTalk = document.querySelector('#push-to-talk');
+const startAr = document.querySelector('#start-ar');
+const exitAr = document.querySelector('#exit-ar');
 const crosshair = document.querySelector('.aim-crosshair');
 const placementStatus = document.querySelector('#placement-status');
 const phoneAudio = new Audio();
 phoneAudio.playsInline = true;
+
+function triggerArSession() {
+  arButton.click();
+}
+startAr.addEventListener('click', async () => {
+  haptic(10);
+  await unlockPhoneAudio();
+  triggerArSession();
+});
+exitAr.addEventListener('click', () => {
+  haptic(8);
+  stopPlayback();
+  if (recorder) {
+    cancelRequested = true;
+    try { recorder.cancel(); } catch { /* ignore */ }
+  }
+  triggerArSession();
+});
 
 let recorder = null;
 let interactionBusy = false;
@@ -145,14 +185,14 @@ renderWorldState(worldController.getWorldState());
 
 async function runPlan(actions, source = 'debug', requestId = createRequestId()) {
   const execution = await worldController.executePlan(actions, { requestId });
-  console.info('[ShabdVerse scene]', { source, execution, world: execution.world });
+  console.info('[Wundro scene]', { source, execution, world: execution.world });
   return execution;
 }
 
 function blockXrSelect(event) {
   event.preventDefault();
 }
-for (const node of [pushToTalk, statusPill, arButton]) {
+for (const node of [pushToTalk, startAr, exitAr, statusPill, arButton]) {
   node.addEventListener('beforexrselect', blockXrSelect);
 }
 
@@ -378,7 +418,12 @@ async function checkVoiceHealth() {
       const missing = [!health.cohereConfigured && 'Cohere', !health.gnaniConfigured && 'Gnani'].filter(Boolean);
       throw new Error(`${missing.join(' + ') || 'Backend'} configuration required`);
     }
-    setVoiceState('ready', 'Hold to talk');
+    if (document.body.classList.contains('xr-active')) {
+      setVoiceState('ready', 'Hold to talk');
+    } else {
+      setVoiceState('idle');
+      statusPill.dataset.visible = 'false';
+    }
   } catch (error) {
     setVoiceState('error', 'Voice offline');
     console.error(error);
@@ -428,6 +473,10 @@ renderer.xr.addEventListener('sessionend', () => {
   floorReferenceSpace = null;
   aimPlacement.setActive(false);
   renderPlacementState(true);
+  interactionBusy = false;
+  activePointerId = null;
+  setVoiceState('idle');
+  statusPill.dataset.visible = 'false';
 });
 
 function requestOptionalTrackingFeatures(session) {
@@ -477,7 +526,7 @@ addEventListener('resize', () => {
   renderer.setSize(innerWidth, innerHeight);
 });
 
-window.shabdVerse = {
+const wundroApi = {
   executeCommands: (commands) => runPlan(commands, 'console'),
   interpretText: (instruction) => interpretAndExecute({
     instruction,
@@ -492,6 +541,8 @@ window.shabdVerse = {
   setPlacementHeight: (height) => aimPlacement.setHeight(height),
   getVoiceDiagnostics: (requestId) => fetch(`/api/voice/diagnostics/${requestId}`).then((value) => value.json()),
 };
+window.wundro = wundroApi;
+window.shabdVerse = wundroApi;
 
 renderPlacementState(true);
 checkVoiceHealth();

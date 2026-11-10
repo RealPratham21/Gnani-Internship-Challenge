@@ -1,2 +1,2 @@
-"""ShabdVerse natural-language command backend."""
+"""Wundro natural-language command backend."""
 

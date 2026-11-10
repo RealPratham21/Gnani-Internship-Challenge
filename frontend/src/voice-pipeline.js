@@ -47,7 +47,7 @@ async function fetchJson(url, options, fallbackStage, fetchImpl) {
 const defaultFetch = (...args) => globalThis.fetch(...args);
 
 export async function reportVoiceEvent(event, fetchImpl = defaultFetch) {
-  console.info('[ShabdVerse voice]', event);
+  console.info('[Wundro voice]', event);
   try {
     await fetchImpl('/api/voice/events', {
       method: 'POST',

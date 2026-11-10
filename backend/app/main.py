@@ -31,7 +31,7 @@ from .pipeline_logging import pipeline_logs
 from .voice import VoicePipelineService, create_voice_service
 
 
-app = FastAPI(title="ShabdVerse Conversational World", version="0.7.0")
+app = FastAPI(title="Wundro Conversational World", version="0.7.0")
 
 
 def _interpreter(request: Request):

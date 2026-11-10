@@ -248,7 +248,7 @@ class AssetResolveResponse(StrictModel):
     id: str
     name: str
     query: str
-    provider: Literal["Poly Haven", "ShabdVerse fallback"]
+    provider: Literal["Poly Haven", "Wundro fallback"]
     license: Literal["CC0"]
     source_url: str
     model_url: str

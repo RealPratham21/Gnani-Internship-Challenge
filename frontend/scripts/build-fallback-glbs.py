@@ -1,4 +1,4 @@
-"""Create minimal verified geometric GLB fallbacks for ShabdVerse offline use."""
+"""Create minimal verified geometric GLB fallbacks for Wundro offline use."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ def build_glb(positions: list[tuple[float, float, float]], indices: list[int], n
     mins = [min(point[axis] for point in positions) for axis in range(3)]
     maxs = [max(point[axis] for point in positions) for axis in range(3)]
     gltf = {
-        "asset": {"version": "2.0", "generator": "ShabdVerse fallback"},
+        "asset": {"version": "2.0", "generator": "Wundro fallback"},
         "scenes": [{"nodes": [0], "name": name}],
         "scene": 0,
         "nodes": [{"mesh": 0, "name": name}],

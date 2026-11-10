@@ -18,7 +18,7 @@ from .pipeline_logging import PipelineLogStore
 
 
 POLYHAVEN_API = "https://api.polyhaven.com"
-USER_AGENT = "ShabdVerse/0.6 (local WebXR asset resolver)"
+USER_AGENT = "Wundro/0.7 (local WebXR asset resolver)"
 SAFE_DOWNLOAD_HOSTS = {"dl.polyhaven.org"}
 MAX_FILE_BYTES = 10 * 1024 * 1024
 MAX_ASSET_BYTES = 18 * 1024 * 1024
@@ -29,7 +29,7 @@ SLUG = re.compile(r"^[A-Za-z0-9_-]+$")
 
 FALLBACK_CATALOGUE = {
     "sofa": {
-        "id": "shabdverse_sofa",
+        "id": "wundro_sofa",
         "name": "Sofa",
         "queries": {"sofa", "couch", "सोफा", "sofha"},
         "model_url": "/models/sofa.glb",
@@ -37,7 +37,7 @@ FALLBACK_CATALOGUE = {
         "dimensions_mm": (1800.0, 850.0, 900.0),
     },
     "table": {
-        "id": "shabdverse_table",
+        "id": "wundro_table",
         "name": "Table",
         "queries": {"table", "desk", "टेबल", "mez", "मेज़"},
         "model_url": "/models/table.glb",
@@ -45,7 +45,7 @@ FALLBACK_CATALOGUE = {
         "dimensions_mm": (1200.0, 750.0, 700.0),
     },
     "chair": {
-        "id": "shabdverse_chair",
+        "id": "wundro_chair",
         "name": "Chair",
         "queries": {"chair", "seat", "कुर्सी", "kursi"},
         "model_url": "/models/chair.glb",
@@ -53,7 +53,7 @@ FALLBACK_CATALOGUE = {
         "dimensions_mm": (450.0, 900.0, 450.0),
     },
     "plant": {
-        "id": "shabdverse_plant",
+        "id": "wundro_plant",
         "name": "Plant",
         "queries": {"plant", "pot", "पौधा", "paudha"},
         "model_url": "/models/plant.glb",
@@ -76,7 +76,10 @@ class AssetResolver:
         cache_root: Path | None = None,
         http_client: httpx.Client | None = None,
     ) -> None:
-        configured = os.getenv("SHABDVERSE_ASSET_CACHE", "").strip()
+        configured = (
+            os.getenv("WUNDRO_ASSET_CACHE", "").strip()
+            or os.getenv("SHABDVERSE_ASSET_CACHE", "").strip()
+        )
         self.cache_root = cache_root or (
             Path(configured) if configured else Path(__file__).resolve().parents[1] / ".asset-cache"
         )
@@ -337,7 +340,7 @@ class AssetResolver:
                     id=value["id"],
                     name=value["name"],
                     query=query,
-                    provider="ShabdVerse fallback",
+                    provider="Wundro fallback",
                     license="CC0",
                     source_url=value["source_url"],
                     model_url=value["model_url"],

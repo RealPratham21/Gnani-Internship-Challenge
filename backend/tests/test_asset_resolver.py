@@ -136,7 +136,7 @@ def test_falls_back_to_verified_local_catalogue(tmp_path):
     }
     resolver = make_resolver(tmp_path, handlers)
     result = resolver.resolve("table", "req-fallback")
-    assert result.provider == "ShabdVerse fallback"
+    assert result.provider == "Wundro fallback"
     assert result.id == FALLBACK_CATALOGUE["table"]["id"]
     assert result.model_url == "/models/table.glb"
 
@@ -150,14 +150,14 @@ def test_rejects_low_confidence_search_hits_then_falls_back(tmp_path):
     }
     resolver = make_resolver(tmp_path, handlers)
     result = resolver.resolve("plant", "req-low-score")
-    assert result.provider == "ShabdVerse fallback"
-    assert result.id == "shabdverse_plant"
+    assert result.provider == "Wundro fallback"
+    assert result.id == "wundro_plant"
 
 
 @pytest.mark.parametrize("query,expected", [
-    ("sofa", "shabdverse_sofa"),
-    ("chair", "shabdverse_chair"),
-    ("plant", "shabdverse_plant"),
+    ("sofa", "wundro_sofa"),
+    ("chair", "wundro_chair"),
+    ("plant", "wundro_plant"),
 ])
 def test_fallback_covers_three_distinct_assets(tmp_path, query, expected):
     handlers = {
